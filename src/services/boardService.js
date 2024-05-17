@@ -2,6 +2,7 @@ import { StatusCodes } from 'http-status-codes'
 import { boardModel } from '~/models/boardModel'
 import ApiError from '~/utils/AppError'
 import { slugify } from '~/utils/formatter'
+import { cloneDeep } from 'lodash'
 const createNew =  async (reqBody)=>{
 // eslint-disable-next-line no-useless-catch
 try {
@@ -27,7 +28,12 @@ const getDetails =  async (boardId)=>{
     if (!board) {
         throw new ApiError(StatusCodes.NOT_FOUND,'Board not found')
     }
-    return board
+    const resBoard = cloneDeep(board)
+    resBoard.columns.forEach(column=>{
+        column.cards = resBoard.cards.filter(card=>card.columnId.toString() === column._id.toString())
+    })
+    delete resBoard.cards
+    return resBoard
     } catch (error) {
         throw error
     }
