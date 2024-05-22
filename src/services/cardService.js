@@ -1,4 +1,5 @@
 import { cardModel } from '~/models/cardModel'
+import { columnModel } from '~/models/columnModel'
 
 const createNew = async (reqBody) => {
   try {
@@ -11,6 +12,9 @@ const createNew = async (reqBody) => {
     console.log(createCard)
     const getNewCard = await cardModel.findOneById(createCard.insertedId)
     //tra ket qua ve, trong service luon phai co return
+    if(getNewCard) {
+      await columnModel.pushCardOrderIds(getNewCard)
+    }
     return getNewCard
   } catch (error) {
     throw error

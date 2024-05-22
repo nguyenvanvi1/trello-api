@@ -1,9 +1,10 @@
 import Joi, { date } from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
-import { OBJECT_ID_RULE_MESSAGE,OBJECT_ID_RULE } from './validators'
 import { columnModel } from './columnModel'
 import { cardModel } from './cardModel'
+import { OBJECT_ID_RULE_MESSAGE,OBJECT_ID_RULE } from './validators'
+import { isNull } from 'lodash'
 const BOARD_COLLECTION_NAME = 'boards'
 const BOARD_COLLECTION_SCHEMA = Joi.object({
   title: Joi.string().required().min(3).max(50).trim().strict(),
@@ -67,10 +68,26 @@ const getDetails = async(id)=>{
     throw new Error(error)
   }
 }
+const pushColumnOrderIds = async(column)=>{
+  try{
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      {
+        _id:new ObjectId(column.boardId)
+      },
+      {
+        $push:{columnOrderIds:new ObjectId(column._id)}
+      },
+      { returnDocument: 'after' }
+    )
+    return result.value 
+
+  } catch(error) { throw new Error(error) }
+}
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
   createNew,
   findOneById,
-  getDetails
+  getDetails,
+  pushColumnOrderIds
 }
