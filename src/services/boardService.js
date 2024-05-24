@@ -3,6 +3,8 @@ import { boardModel } from '~/models/boardModel'
 import ApiError from '~/utils/AppError'
 import { slugify } from '~/utils/formatter'
 import { cloneDeep } from 'lodash'
+import { columnModel } from '~/models/columnModel'
+import { cardModel } from '~/models/cardModel'
 const createNew = async (reqBody) => {
 // eslint-disable-next-line no-useless-catch
   try {
@@ -30,7 +32,8 @@ const getDetails = async (boardId) => {
     }
     const resBoard = cloneDeep(board)
     resBoard.columns.forEach(column => {
-      column.cards = resBoard.cards.filter(card => card.columnId.toString() === column._id.toString())
+      column.cards = resBoard.cards.filter(card=>card.columnId.equals(column._id))
+      //column.cards = resBoard.cards.filter(card => card.columnId.toString() === column._id.toString())
     })
     delete resBoard.cards
     return resBoard
@@ -52,8 +55,28 @@ const update = async (boardId,reqBody) => {
     throw error
   }
 }
+const moveCardToDifferentColumnAPI = async (reqBody) => {
+
+  try {
+    await columnModel.update(reqBody.prevColumnId,{
+      cardOrderIds:reqBody.prevCardOrderIds,
+      updatedAt:Date.now()
+    })
+    await columnModel.update(reqBody.nextColumnId,{
+      cardOrderIds:reqBody.nextCardOrderIds,
+      updatedAt:Date.now()
+    })
+    await cardModel.update(reqBody.currentCardId,{
+      columnId: reqBody.nextColumnId
+    })
+    return {updateResult:'Successfully'}
+  } catch (error) {
+    throw error
+  }
+}
 export const boardService ={
   createNew,
   getDetails,
-  update
+  update,
+  moveCardToDifferentColumnAPI
 }

@@ -3,6 +3,8 @@ import Joi from 'joi'
 import { OBJECT_ID_RULE_MESSAGE,OBJECT_ID_RULE } from './validators'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
+const INVALID_UPDATE_FIELDS = ['_id','boardId','createdAt']
+
 // Define Collection (name & schema)
 const CARD_COLLECTION_NAME = 'cards'
 const CARD_COLLECTION_SCHEMA = Joi.object({
@@ -44,10 +46,34 @@ const findOneById = async(id)=>{
     throw new Error(error)
   }
 }
+const update = async(cardId,updateData)=>{
+  try{
+    // loc nhung cai field ma chung ta khong cho phep cap nhat linh
+    Object.keys(updateData).forEach(fieldName =>{
+      if(INVALID_UPDATE_FIELDS.includes(fieldName)) {
+        delete updateData[fieldName]
+      }
+    })
+    console.log('updatedata:',updateData)
+    if(updateData.columnId) updateData.columnId = new ObjectId(updateData.columnId)
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      {
+        _id:new ObjectId(cardId)
+      },
+      {
+        $set:updateData
+      },
+      { returnDocument: 'after' }
+    )
+    return result
+
+  } catch(error) { throw new Error(error) }
+}
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
   validateBeforeCreate,
   createNew,
-  findOneById
+  findOneById,
+  update
 }
