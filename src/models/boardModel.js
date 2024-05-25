@@ -4,7 +4,6 @@ import { GET_DB } from '~/config/mongodb'
 import { columnModel } from './columnModel'
 import { cardModel } from './cardModel'
 import { OBJECT_ID_RULE_MESSAGE,OBJECT_ID_RULE } from './validators'
-import { isNull } from 'lodash'
 const BOARD_COLLECTION_NAME = 'boards'
 const BOARD_COLLECTION_SCHEMA = Joi.object({
   title: Joi.string().required().min(3).max(50).trim().strict(),
