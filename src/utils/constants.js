@@ -1,3 +1,3 @@
 export const WHITELIST_DOMAINS =[
-   //'http://localhost:5173'
+   'https://trello-web-drab-mu.vercel.app/'
 ]
