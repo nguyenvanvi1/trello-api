@@ -15,9 +15,16 @@ const START_SERVER = ()=>{
   app.use('/v1', APIs_V1)
 // midleware xu ly loi
   app.use(errorHandlingMiddleware)
-  app.listen(env.APP_PORT, env.APP_HOST, () => {
-    console.log(`Hello Trung Quan Dev, I am running at ${ env.APP_HOST }:${ env.APP_PORT }/`)
-  })
+  if(env.BUILD_MODE === 'production') {
+    app.listen(process.env.PORT, () => {
+      console.log(`Hello production, I am running at ${process.env.PORT}`)
+    })
+  }else {
+    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+      console.log(`Hello local dev, I am running at ${ env.LOCAL_DEV_APP_HOST }:${ env.LOCAL_DEV_APP_PORT }`)
+    })
+  }
+  
   // thực hiện các tác vụ clean up trước khi dừng server
   exitHook(()=>{
     console.log('4')
